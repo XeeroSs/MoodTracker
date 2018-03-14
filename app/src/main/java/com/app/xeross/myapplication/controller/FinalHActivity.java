@@ -3,24 +3,23 @@ package com.app.xeross.myapplication.controller;
 import android.app.AlarmManager;
 import android.app.ListActivity;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.SystemClock;
+import android.os.Parcelable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.ListView;
 
 import com.app.xeross.controller.R;
+import com.app.xeross.myapplication.model.AddItemList;
 import com.app.xeross.myapplication.model.CustomAdapter;
 import com.app.xeross.myapplication.view.Item;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 //Class who manages the history
@@ -28,6 +27,7 @@ public class FinalHActivity extends ListActivity {
 
     final String TEXT_TEST = "TEXT_TEST";
     final String TEXT_INT = "TEXT_INT";
+    private final String LIST_STATE_KEY = "recycler_state";
     LinearLayoutManager polo;
     RecyclerView.LayoutManager mLayoutManager;
     List<Item> mItems = new ArrayList<>();
@@ -36,18 +36,26 @@ public class FinalHActivity extends ListActivity {
     private String pos = "Aujourd'hui";
     private Button mButtonChange;
     private Button mButtonAdd;
-    private Button mButtonDelete;
     private CustomAdapter adapter;
+    private Parcelable mListState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.activity_final_h);
 
+        mLayoutManager = new LinearLayoutManager(this);
+
         //ID
+        list_item = findViewById(R.id.recycler);
         mButtonAdd = findViewById(R.id.button_add);
         mButtonChange = findViewById(R.id.button_change);
-        mButtonDelete = findViewById(R.id.button_remove);
+
+        ListView lv = getListView();
+
+        adapter = new CustomAdapter(mItems, this);
+        list_item.setAdapter(adapter);
+        //list_item.setAdapter(adapter);
 
         //new Intent
         final Intent intent = getIntent();
@@ -63,14 +71,6 @@ public class FinalHActivity extends ListActivity {
             }
         });
 
-        mButtonDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DeleteView();
-                adapter.notifyDataSetChanged();
-            }
-        });
-
         //TEST
         mButtonChange.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,15 +79,35 @@ public class FinalHActivity extends ListActivity {
                 adapter.notifyDataSetChanged();
             }
         });
-
-        list_item = findViewById(R.id.recyclerview);
         polo = new LinearLayoutManager(this);
-        mLayoutManager = new LinearLayoutManager(this);
         list_item.setHasFixedSize(true);
         list_item.setLayoutManager(polo);
-
-        getData();
         list_item.getRecycledViewPool().clear();
+    }
+
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+
+        // Save list state
+        mListState = mLayoutManager.onSaveInstanceState();
+        state.putParcelable(LIST_STATE_KEY, mListState);
+    }
+
+    protected void onRestoreInstanceState(Bundle state) {
+        super.onRestoreInstanceState(state);
+
+        // Retrieve list state and list/item positions
+        if (state != null)
+            mListState = state.getParcelable(LIST_STATE_KEY);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (mListState != null) {
+            mLayoutManager.onRestoreInstanceState(mListState);
+        }
     }
 
     public void ChangeView() {
@@ -116,9 +136,7 @@ public class FinalHActivity extends ListActivity {
         }
     }
 
-    public void DeleteView() {
-        Item hey = mItems.get(mItems.size() - 1);
-        mItems.remove(hey);
+    public void setItems() {
     }
 
     public void AddView() {
@@ -176,19 +194,14 @@ public class FinalHActivity extends ListActivity {
         }
     }
 
-    private void getData() {
-        adapter = new CustomAdapter(mItems, this);
-        list_item.setAdapter(adapter);
+    public void startAlertAtParticularTime() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        Intent notificationIntent = new Intent(this, AddItemList.class);
+        PendingIntent broadcast = PendingIntent.getBroadcast(this, 100, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.SECOND, 5);
+
     }
-
-    /*public void start() {
-        Intent intent = new Intent(this, MyBroadcastReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                this.getApplicationContext(), 234, intent, 0);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (timeInSec * 1000), pendingIntent);
-        Toast.makeText(this, "Alarm set to after " + i + " seconds",Toast.LENGTH_LONG).show();
-        Log.i("A BIENTOT", "intent ok");
-    }*/
-
 }
