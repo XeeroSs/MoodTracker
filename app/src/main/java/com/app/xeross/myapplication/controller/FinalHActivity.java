@@ -38,6 +38,8 @@ public class FinalHActivity extends ListActivity {
     private Button mButtonAdd;
     private CustomAdapter adapter;
     private Parcelable mListState;
+    private AlarmManager alarmMgr;
+    private PendingIntent alarmIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +53,11 @@ public class FinalHActivity extends ListActivity {
         mButtonAdd = findViewById(R.id.button_add);
         mButtonChange = findViewById(R.id.button_change);
 
-        ListView lv = getListView();
+        alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        Intent intentA = new Intent(this, AddItemList.class);
+        alarmIntent = PendingIntent.getBroadcast(this, 0, intentA, 0);
+
+        startAlertAtParticularTime();
 
         adapter = new CustomAdapter(mItems, this);
         list_item.setAdapter(adapter);
@@ -195,13 +201,15 @@ public class FinalHActivity extends ListActivity {
     }
 
     public void startAlertAtParticularTime() {
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        Intent notificationIntent = new Intent(this, AddItemList.class);
-        PendingIntent broadcast = PendingIntent.getBroadcast(this, 100, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // Set the alarm to start at approximately 2:00 p.m.
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
 
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.SECOND, 5);
+        // With setInexactRepeating(), you have to use one of the AlarmManager interval
+        // constants--in this case, AlarmManager.INTERVAL_DAY.
+        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmIntent);
 
     }
 }
