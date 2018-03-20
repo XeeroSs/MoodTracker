@@ -1,17 +1,12 @@
 package com.app.xeross.myapplication.controller;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,23 +16,27 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.app.xeross.controller.R;
-import com.app.xeross.myapplication.model.AddItemList;
 
 //class forming the activity of where the application starts for the first time and is also our core application
 public class MainActivity extends AppCompatActivity {
 
     public static final String CT_1 = "CT_1";
-    public static int index = -1;
-    public static int top = -1;
     final String TEXT_TEST = "TEXT_TEST";
     final String TEXT_INT = "TEXT_INT";
-    LinearLayoutManager polo;
+    final String TEXT_I = "TEXT_I";
+    final String TEXT_COLORS = "TEXT_COLORS";
+    final String TEXT_SIZES = "TEXT_SIZES";
+    final String TEXT_NAMES = "TEXT_NAMES";
+    final String CLEAR_BOOLEAN = "CLEAR_BOOLEAN";
     private int page = 0;
+    private boolean clear = false;
     private ImageButton mButtonAdd, mButtonFinal;
     private SwipeGestureDetector mGestureDetector;
     private ImageView mImageView;
     private EditText mEditText;
+    private boolean clears;
     private TextView mTextTest;
+    private String name = "Aujourd'hui";
     private SharedPreferences mPreferences;
     private android.support.constraint.ConstraintLayout mBackground;
 
@@ -80,23 +79,62 @@ public class MainActivity extends AppCompatActivity {
                         switch (IntPage()) {
                             case 0:
                                 setInt(0);
+                                setItem(name, "#fff9ec4f", 1);
                                 do2.start();
                                 break;
                             case 1:
                                 setInt(1);
+                                setItem(name, "#ffb8e986", 200);
                                 si.start();
                                 break;
                             case 2:
                                 setInt(2);
+                                setItem(name, "#a5368ad9", 400);
                                 sol.start();
                                 break;
                             case 3:
                                 setInt(3);
+                                setI(0);
+                                setItem(name, "#3b3b3b", 600);
                                 re.start();
                                 break;
                             case 4:
                                 setInt(4);
+                                setI(1);
+                                setItem(name, "#ffde3c50", 800);
                                 do1.start();
+                                break;
+                        }
+
+                        switch (name) {
+                            case "Aujourd'hui":
+                                clears = false;
+                                name = "Hier";
+                                break;
+                            case "Hier":
+                                name = "Avant-hier";
+                                break;
+                            case "Avant-hier":
+                                name = "Il y a 3j";
+                                break;
+                            case "Il y a 3j":
+                                name = "Il y a 4j";
+                                break;
+                            case "Il y a 4j":
+                                name = "Il y a 5j";
+                                break;
+                            case "Il y a 5j":
+                                name = "Il y a 6j";
+                                break;
+                            case "Il y a 6j":
+                                name = "Il y a une semaine";
+                                break;
+                            case "Il y a une semaine":
+                                name = "clear";
+                                break;
+                            case "clear":
+                                clears = true;
+                                name = "Aujourd'hui";
                                 break;
                         }
 
@@ -125,7 +163,11 @@ public class MainActivity extends AppCompatActivity {
                 //New intent of an activity having for parameter the MainActivity class and FinalHActivity class
                 Intent finalH = new Intent(MainActivity.this, FinalHActivity.class);
                 finalH.putExtra(TEXT_TEST, getComment(mTextTest));
+                finalH.putExtra(TEXT_COLORS, getColors());
+                finalH.putExtra(TEXT_SIZES, getSizes());
+                finalH.putExtra(TEXT_NAMES, getNames());
                 finalH.putExtra(TEXT_INT, getInt());
+                finalH.putExtra(CLEAR_BOOLEAN, getClears());
                 //I start the activity
                 startActivity(finalH);
             }
@@ -247,6 +289,52 @@ public class MainActivity extends AppCompatActivity {
         editor.putInt("int", i);
         editor.commit();
     }
+
+    public int getI() {
+        int il = 0;
+        int ill = mPreferences.getInt("I", il);
+        return ill;
+    }
+
+    public void setI(int il) {
+        SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putInt("I", il);
+        editor.commit();
+    }
+
+    public void setItem(String name, String color, int size) {
+        SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putInt("SIZE", size);
+        editor.putString("COLOR", color);
+        editor.putString("NAME", name);
+        editor.commit();
+    }
+
+    public String getColors() {
+        String color = " ";
+        String colord = mPreferences.getString("COLOR", color);
+        return colord;
+    }
+
+    public String getNames() {
+        String name = " ";
+        String names = mPreferences.getString("NAME", name);
+        return names;
+    }
+
+    public int getSizes() {
+        int size = 0;
+        int sizes = mPreferences.getInt("SIZE", size);
+        return sizes;
+    }
+
+    public boolean getClears() {
+        boolean clearss = mPreferences.getBoolean("CLEAR", clears);
+        return clearss;
+    }
+
+
+
 }
 
 //class allowing for intercept a "swipe"

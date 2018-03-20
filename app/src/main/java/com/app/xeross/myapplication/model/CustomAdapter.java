@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.app.xeross.controller.R;
 import com.app.xeross.myapplication.view.Item;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,6 +65,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomViewHolder> {
         mItemList = itemList;
         mContext = context;
     }
+
 
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

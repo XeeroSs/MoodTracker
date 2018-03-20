@@ -18,8 +18,13 @@
             </intent-filter>
         </activity>
         <activity android:name="com.app.xeross.myapplication.controller.FinalHActivity">
-            android:name="com.app.xeross.myapplication.model.AddItemList>
+
         </activity>
+
+        <receiver android:name="com.app.xeross.myapplication.model.AddItemList">
+
+        </receiver>
+
     </application>
 
 </manifest>
