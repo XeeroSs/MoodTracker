@@ -23,18 +23,15 @@ public class MainActivity extends AppCompatActivity {
     public static final String CT_1 = "CT_1";
     final String TEXT_TEST = "TEXT_TEST";
     final String TEXT_INT = "TEXT_INT";
-    final String TEXT_I = "TEXT_I";
     final String TEXT_COLORS = "TEXT_COLORS";
     final String TEXT_SIZES = "TEXT_SIZES";
     final String TEXT_NAMES = "TEXT_NAMES";
     final String CLEAR_BOOLEAN = "CLEAR_BOOLEAN";
     private int page = 0;
-    private boolean clear = false;
     private ImageButton mButtonAdd, mButtonFinal;
     private SwipeGestureDetector mGestureDetector;
     private ImageView mImageView;
     private EditText mEditText;
-    private boolean clears;
     private TextView mTextTest;
     private String name = "Aujourd'hui";
     private SharedPreferences mPreferences;
@@ -106,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
 
                         switch (name) {
                             case "Aujourd'hui":
-                                clears = false;
                                 name = "Hier";
                                 break;
                             case "Hier":
@@ -131,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
                                 name = "clear";
                                 break;
                             case "clear":
-                                clears = true;
                                 name = "Aujourd'hui";
                                 break;
                         }
@@ -165,7 +160,6 @@ public class MainActivity extends AppCompatActivity {
                 finalH.putExtra(TEXT_SIZES, getSizes());
                 finalH.putExtra(TEXT_NAMES, getNames());
                 finalH.putExtra(TEXT_INT, getInt());
-                finalH.putExtra(CLEAR_BOOLEAN, getClears());
                 //I start the activity
                 startActivity(finalH);
             }
@@ -288,18 +282,6 @@ public class MainActivity extends AppCompatActivity {
         editor.commit();
     }
 
-    public int getI() {
-        int il = 0;
-        int ill = mPreferences.getInt("I", il);
-        return ill;
-    }
-
-    public void setI(int il) {
-        SharedPreferences.Editor editor = mPreferences.edit();
-        editor.putInt("I", il);
-        editor.commit();
-    }
-
     public void setItem(String name, String color, int size) {
         SharedPreferences.Editor editor = mPreferences.edit();
         editor.putInt("SIZE", size);
@@ -320,23 +302,11 @@ public class MainActivity extends AppCompatActivity {
         return names;
     }
 
-    public void setNames(String nm) {
-        SharedPreferences.Editor editor = mPreferences.edit();
-        editor.putString("NAME", nm);
-        editor.commit();
-    }
-
     public int getSizes() {
         int size = 0;
         int sizes = mPreferences.getInt("SIZE", size);
         return sizes;
     }
-
-    public boolean getClears() {
-        boolean clearss = mPreferences.getBoolean("CLEAR", clears);
-        return clearss;
-    }
-
 
 }
 
