@@ -3,14 +3,17 @@ package com.app.xeross.myapplication.controller;
 import android.app.AlarmManager;
 import android.app.ListActivity;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.app.xeross.controller.R;
 import com.app.xeross.myapplication.model.AddItemList;
@@ -27,8 +30,6 @@ import java.util.Calendar;
 public class FinalHActivity extends ListActivity {
 
     final String TEXT_TEST = "TEXT_TEST";
-    final String TEXT_INT = "TEXT_INT";
-    final String TEXT_I = "TEXT_I";
     final String TEXT_COLORS = "TEXT_COLORS";
     final String CLEAR_BOOLEAN = "CLEAR_BOOLEAN";
     final String TEXT_SIZES = "TEXT_SIZES";
@@ -37,10 +38,10 @@ public class FinalHActivity extends ListActivity {
     ArrayList<Item> mItems = new ArrayList<>();
     private RecyclerView list_item;
     private CustomAdapter adapter;
-    //int it = intent.getIntExtra(TEXT_INT, 5);
-    //int il = intent.getIntExtra(TEXT_I, 0);
     private AlarmManager alarmMgr;
     private PendingIntent alarmIntent;
+    private BroadcastReceiver mReceiver;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +50,7 @@ public class FinalHActivity extends ListActivity {
 
         final Intent intent = getIntent();
         Button madd = findViewById(R.id.button_add);
+        Button mdel = findViewById(R.id.button_remove);
         String color = intent.getStringExtra(TEXT_COLORS);
         int size = intent.getIntExtra(TEXT_SIZES, 0);
         String name = intent.getStringExtra(TEXT_NAMES);
@@ -56,19 +58,28 @@ public class FinalHActivity extends ListActivity {
         boolean clars = intent.getBooleanExtra(CLEAR_BOOLEAN, false);
 
         loadData();
-        if (color != " ") {
+        if (color != " " && name != "clear") {
             mItems.add(new Item(name, color, size, str));
         }
 
-        if (clars == true) {
+        if (name == "clear") {
             mItems.clear();
+            saveData();
+            adapter.notifyDataSetChanged();
         }
+
+        mdel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DeleteView();
+            }
+        });
 
         alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent intentA = new Intent(this, AddItemList.class);
         alarmIntent = PendingIntent.getBroadcast(this, 0, intentA, 0);
 
-        startAlertAtParticularTime();
+        RegisterAlarmBroadcast();
 
         mLayoutManager = new LinearLayoutManager(this);
         list_item = findViewById(R.id.recycler);
@@ -82,6 +93,14 @@ public class FinalHActivity extends ListActivity {
                 saveData();
             }
         });
+    }
+
+    public void DeleteView() {
+        //Item hey = mItems.get(mItems.size() - 1);
+        //mItems.remove(hey);
+        mItems.clear();
+        saveData();
+        adapter.notifyDataSetChanged();
     }
 
     private void saveData() {
@@ -108,15 +127,23 @@ public class FinalHActivity extends ListActivity {
         }
     }
 
-    public void startAlertAtParticularTime() {
+    private void RegisterAlarmBroadcast() {
 
-        // Set the alarm to start at midnight.
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 0);
 
-        // constants--in this case, AlarmManager.INTERVAL_DAY.
-        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmIntent);
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                saveData();
+                Toast.makeText(context, "L'humeur à été mémorisée", Toast.LENGTH_LONG).show();
+            }
+        };
 
+        registerReceiver(mReceiver, new IntentFilter("sample"));
+        alarmIntent = PendingIntent.getBroadcast(this, 0, new Intent("sample"), 0);
+        alarmMgr = (AlarmManager) (this.getSystemService(Context.ALARM_SERVICE));
+        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmIntent);
     }
 }

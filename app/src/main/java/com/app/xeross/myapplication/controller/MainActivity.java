@@ -94,13 +94,11 @@ public class MainActivity extends AppCompatActivity {
                                 break;
                             case 3:
                                 setInt(3);
-                                setI(0);
                                 setItem(name, "#3b3b3b", 600);
                                 re.start();
                                 break;
                             case 4:
                                 setInt(4);
-                                setI(1);
                                 setItem(name, "#ffde3c50", 800);
                                 do1.start();
                                 break;
@@ -322,6 +320,12 @@ public class MainActivity extends AppCompatActivity {
         return names;
     }
 
+    public void setNames(String nm) {
+        SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putString("NAME", nm);
+        editor.commit();
+    }
+
     public int getSizes() {
         int size = 0;
         int sizes = mPreferences.getInt("SIZE", size);
@@ -332,7 +336,6 @@ public class MainActivity extends AppCompatActivity {
         boolean clearss = mPreferences.getBoolean("CLEAR", clears);
         return clearss;
     }
-
 
 
 }
