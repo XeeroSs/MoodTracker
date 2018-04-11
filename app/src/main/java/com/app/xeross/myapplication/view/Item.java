@@ -12,16 +12,11 @@ public class Item {
     private String ColorFrameLayout;
     private String st;
 
-    public Item() {
-    }
-
     public Item(String name, String ColorFrameLayout, int in, String st) {
         this.name = name;
         this.ColorFrameLayout = ColorFrameLayout;
         this.in = in;
         this.st = st;
-        //params.setMargins(1, 1, i, 1);
-        //mFrameLayout.setLayoutParams(params);
     }
 
     public long getId() {
@@ -44,10 +39,6 @@ public class Item {
         return ColorFrameLayout;
     }
 
-    public void setColorFrameLayout(String colorFrameLayout) {
-        ColorFrameLayout = colorFrameLayout;
-    }
-
     public int getInt() {
         return in;
     }
@@ -60,7 +51,4 @@ public class Item {
         return st;
     }
 
-    public void setSt(String st) {
-        this.st = st;
-    }
 }

@@ -1,5 +1,8 @@
 package com.app.xeross.myapplication.controller;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,6 +10,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,26 +20,28 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.app.xeross.controller.R;
+import com.app.xeross.myapplication.model.AddItemList;
+
+import java.util.Calendar;
 
 //class forming the activity of where the application starts for the first time and is also our core application
 public class MainActivity extends AppCompatActivity {
 
     public static final String CT_1 = "CT_1";
     final String TEXT_TEST = "TEXT_TEST";
-    final String TEXT_INT = "TEXT_INT";
+    final String BOOLEAN_OK = "BOOLEAN_OK";
     final String TEXT_COLORS = "TEXT_COLORS";
     final String TEXT_SIZES = "TEXT_SIZES";
-    final String TEXT_NAMES = "TEXT_NAMES";
-    final String CLEAR_BOOLEAN = "CLEAR_BOOLEAN";
     private int page = 0;
     private ImageButton mButtonAdd, mButtonFinal;
-    private SwipeGestureDetector mGestureDetector;
+    private Swipe mGestureDetector;
     private ImageView mImageView;
     private EditText mEditText;
     private TextView mTextTest;
-    private String name = "Aujourd'hui";
     private SharedPreferences mPreferences;
     private android.support.constraint.ConstraintLayout mBackground;
+    private AlarmManager alarmMgr;
+    private PendingIntent alarmIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +61,11 @@ public class MainActivity extends AppCompatActivity {
         mPreferences = getSharedPreferences(CT_1, MODE_PRIVATE);
 
         //new instance of the class "SwipeGestureDetector" with as options the class "MainActivity"
-        mGestureDetector = new SwipeGestureDetector(MainActivity.this);
+        mGestureDetector = new Swipe(MainActivity.this);
+
+        Log.i("DEBUG", "Main (ActivityMain)");
+        startAlertAtParticularTime();
+
         //than the user go click on the button "mButtonAdd"
         mButtonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,58 +86,28 @@ public class MainActivity extends AppCompatActivity {
                         switch (IntPage()) {
                             case 0:
                                 setInt(0);
-                                setItem(name, "#fff9ec4f", 1);
+                                setItem("#fff9ec4f", 1, true);
                                 do2.start();
                                 break;
                             case 1:
                                 setInt(1);
-                                setItem(name, "#ffb8e986", 200);
+                                setItem("#ffb8e986", 200, true);
                                 si.start();
                                 break;
                             case 2:
                                 setInt(2);
-                                setItem(name, "#a5368ad9", 400);
+                                setItem("#a5368ad9", 400, true);
                                 sol.start();
                                 break;
                             case 3:
                                 setInt(3);
-                                setItem(name, "#3b3b3b", 600);
+                                setItem("#3b3b3b", 600, true);
                                 re.start();
                                 break;
                             case 4:
                                 setInt(4);
-                                setItem(name, "#ffde3c50", 800);
+                                setItem("#ffde3c50", 800, true);
                                 do1.start();
-                                break;
-                        }
-
-                        switch (name) {
-                            case "Aujourd'hui":
-                                name = "Hier";
-                                break;
-                            case "Hier":
-                                name = "Avant-hier";
-                                break;
-                            case "Avant-hier":
-                                name = "Il y a 3j";
-                                break;
-                            case "Il y a 3j":
-                                name = "Il y a 4j";
-                                break;
-                            case "Il y a 4j":
-                                name = "Il y a 5j";
-                                break;
-                            case "Il y a 5j":
-                                name = "Il y a 6j";
-                                break;
-                            case "Il y a 6j":
-                                name = "Il y a une semaine";
-                                break;
-                            case "Il y a une semaine":
-                                name = "clear";
-                                break;
-                            case "clear":
-                                name = "Aujourd'hui";
                                 break;
                         }
 
@@ -158,8 +138,6 @@ public class MainActivity extends AppCompatActivity {
                 finalH.putExtra(TEXT_TEST, getComment(mTextTest));
                 finalH.putExtra(TEXT_COLORS, getColors());
                 finalH.putExtra(TEXT_SIZES, getSizes());
-                finalH.putExtra(TEXT_NAMES, getNames());
-                finalH.putExtra(TEXT_INT, getInt());
                 //I start the activity
                 startActivity(finalH);
             }
@@ -167,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //using the "swipe"
-    public void onSwipe(SwipeGestureDetector.SwipeDirection direction) {
+    public void onSwipe(Swipe.SwipeD direction) {
         //if "IntPage == 0 to 4" change the background, image and "setIntPage"
         if (IntPage() == 0) {
             switch (direction) {
@@ -282,11 +260,11 @@ public class MainActivity extends AppCompatActivity {
         editor.commit();
     }
 
-    public void setItem(String name, String color, int size) {
+    public void setItem(String color, int size, boolean val) {
         SharedPreferences.Editor editor = mPreferences.edit();
         editor.putInt("SIZE", size);
+        editor.putBoolean("BOOLEAN_OK", val);
         editor.putString("COLOR", color);
-        editor.putString("NAME", name);
         editor.commit();
     }
 
@@ -296,30 +274,39 @@ public class MainActivity extends AppCompatActivity {
         return colord;
     }
 
-    public String getNames() {
-        String name = " ";
-        String names = mPreferences.getString("NAME", name);
-        return names;
-    }
-
     public int getSizes() {
         int size = 0;
         int sizes = mPreferences.getInt("SIZE", size);
         return sizes;
     }
 
+    public void startAlertAtParticularTime() {
+
+        Log.i("DEBUG", "startAlertAtParticularTime (ActivityMain)");
+        alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        Intent intentA = new Intent(this, AddItemList.class);
+        alarmIntent = PendingIntent.getBroadcast(this, 0, intentA, 0);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmIntent);
+    }
+
 }
 
 //class allowing for intercept a "swipe"
-class SwipeGestureDetector extends GestureDetector {
+class Swipe extends GestureDetector {
     //I determine the "duration" of the user to do the "swipe"
     private final static int DELTA_MIN = 50;
 
     //The maker of the class whose going to allowed the direction capture of the user "swipe"
-    SwipeGestureDetector(final MainActivity context) {
+    Swipe(final MainActivity context) {
         super(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float vX, float vY) {
                 float deltaY = e1.getY() - e2.getY();
                 //Condition whose checking if the movement of the user, top to bottom or conversely
                 //We check if the user did well with his "swipe"
@@ -327,11 +314,11 @@ class SwipeGestureDetector extends GestureDetector {
                     //If the "swipe" is top to bottom
                     if (deltaY < 0) {
                         //If the "swipe" is bottom to top
-                        context.onSwipe(SwipeDirection.BOTTOM_TO_TOP);
+                        context.onSwipe(SwipeD.BOTTOM_TO_TOP);
                         return true;
                         //Otherwise if it's to top to bottom
                     } else {
-                        context.onSwipe(SwipeDirection.TOP_TO_BOTTOM);
+                        context.onSwipe(SwipeD.TOP_TO_BOTTOM);
                         return true;
                     }
                 }
@@ -340,8 +327,7 @@ class SwipeGestureDetector extends GestureDetector {
         });
     }
 
-    //Enumeration for take back and titled my directions
-    public enum SwipeDirection {
+    public enum SwipeD {
         TOP_TO_BOTTOM, BOTTOM_TO_TOP
     }
 }

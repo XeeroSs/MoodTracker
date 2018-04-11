@@ -22,7 +22,8 @@ import java.util.List;
 /**
  * Created by XeroSs on 14/02/2018.
  */
-class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+ class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
     public static final String STRING_NAME = "STRING_NAME";
     public TextView mTextView;
@@ -51,7 +52,7 @@ class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickLi
     }
 }
 
-public class CustomAdapter extends RecyclerView.Adapter<CustomViewHolder> {
+ public class CustomAdapter extends RecyclerView.Adapter<CustomViewHolder> {
 
     final String TEXT_TEST = "TEXT_TEST";
     public SharedPreferences sharedPref;
@@ -115,10 +116,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomViewHolder> {
         });
 
         if (row_index == position) {
-            //holder.mImageView.setBackgroundColor(Color.parseColor("#F8F8FA"));
             holder.mTextView.setTextColor(Color.parseColor("#c5c5c7"));
         } else {
-            //holder.mImageView.setBackgroundColor(Color.parseColor("#FFFFFF"));
             holder.mTextView.setTextColor(Color.parseColor("#000000"));
         }
 
