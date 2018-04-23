@@ -32,10 +32,12 @@ public class MainActivity extends AppCompatActivity {
     final String BOOLEAN_OK = "BOOLEAN_OK";
     final String TEXT_COLORS = "TEXT_COLORS";
     final String TEXT_SIZES = "TEXT_SIZES";
+    int layoutId = R.layout.activity_main;
     private int page = 0;
     private ImageButton mButtonAdd, mButtonFinal;
     private Swipe mGestureDetector;
     private ImageView mImageView;
+    public static boolean newday = true;
     private EditText mEditText;
     private TextView mTextTest;
     private SharedPreferences mPreferences;
@@ -43,10 +45,13 @@ public class MainActivity extends AppCompatActivity {
     private AlarmManager alarmMgr;
     private PendingIntent alarmIntent;
 
+    public MainActivity() {
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.setContentView(R.layout.activity_main);
 
         mButtonAdd = findViewById(R.id.image_Button_2);
         mButtonFinal = findViewById(R.id.image_Button);
@@ -63,8 +68,11 @@ public class MainActivity extends AppCompatActivity {
         //new instance of the class "SwipeGestureDetector" with as options the class "MainActivity"
         mGestureDetector = new Swipe(MainActivity.this);
 
-        Log.i("DEBUG", "Main (ActivityMain)");
-        startAlertAtParticularTime();
+        if(newday == true) {
+            startAlertAtParticularTime();
+
+
+        }
 
         //than the user go click on the button "mButtonAdd"
         mButtonAdd.setOnClickListener(new View.OnClickListener() {
