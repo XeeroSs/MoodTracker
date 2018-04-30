@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import com.app.xeross.controller.R;
 import com.app.xeross.myapplication.model.CustomAdapter;
@@ -35,14 +34,24 @@ public class FinalHActivity extends ListActivity {
     }
 
     public static void saveData(Context a) {
-
-        Log.i("DEBUG", "SaveData (FinalActivityH)");
         SharedPreferences sharedPreferences = a.getSharedPreferences(SHARED, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         Gson gson = new Gson();
         String json = gson.toJson(mItems);
         editor.putString("TASK", json);
         editor.apply();
+    }
+
+    public static void loadData(Context t) {
+        SharedPreferences sharedPreferences = t.getSharedPreferences(SHARED, MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("TASK", null);
+        Type type = new TypeToken<ArrayList<Item>>() {
+        }.getType();
+        mItems = gson.fromJson(json, type);
+        if (mItems == null) {
+            mItems = new ArrayList<>();
+        }
     }
 
     @Override
@@ -55,9 +64,8 @@ public class FinalHActivity extends ListActivity {
         int size = intent.getIntExtra(TEXT_SIZES, 0);
         String str = intent.getStringExtra(TEXT_TEST);
 
-        loadData();
+        loadData(this);
         if (color != " ") {
-            Log.i("DEBUG", "ADDList (FinalActivityH)");
             switch (mItems.size()) {
                 case 0:
                     mItems.add(new Item("Aujourd'hui", color, size, str));
@@ -111,28 +119,13 @@ public class FinalHActivity extends ListActivity {
 
         mLayoutManager = new LinearLayoutManager(this);
         list_item = findViewById(R.id.recycler);
-        Log.i("DEBUG", "Main (FinalActivityH)");
         list_item.setLayoutManager(mLayoutManager);
         adapter = new CustomAdapter(mItems, this);
         list_item.setAdapter(adapter);
     }
 
     public void DeleteView() {
-        Log.i("DEBUG", "DeleteView (FinalActivityH)");
         mItems.clear();
         saveData(this);
-    }
-
-    private void loadData() {
-        Log.i("DEBUG", "LoadData (FinalActivityH)");
-        SharedPreferences sharedPreferences = getSharedPreferences(SHARED, MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = sharedPreferences.getString("TASK", null);
-        Type type = new TypeToken<ArrayList<Item>>() {
-        }.getType();
-        mItems = gson.fromJson(json, type);
-        if (mItems == null) {
-            mItems = new ArrayList<>();
-        }
     }
 }

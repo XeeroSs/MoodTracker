@@ -10,7 +10,6 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,8 +27,10 @@ import java.util.Calendar;
 public class MainActivity extends AppCompatActivity {
 
     public static final String CT_1 = "CT_1";
+    public static String comment = "";
+    public static String color = "";
+    public static int sizes = 1;
     final String TEXT_TEST = "TEXT_TEST";
-    final String BOOLEAN_OK = "BOOLEAN_OK";
     final String TEXT_COLORS = "TEXT_COLORS";
     final String TEXT_SIZES = "TEXT_SIZES";
     private int page = 0;
@@ -40,13 +41,12 @@ public class MainActivity extends AppCompatActivity {
     private TextView mTextTest;
     private SharedPreferences mPreferences;
     private android.support.constraint.ConstraintLayout mBackground;
-    private AlarmManager alarmMgr;
-    private PendingIntent alarmIntent;
+    private PendingIntent mPendingIntent;
+    private AlarmManager mAlarmManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         super.setContentView(R.layout.activity_main);
 
@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
         //new instance of the class "SwipeGestureDetector" with as options the class "MainActivity"
         mGestureDetector = new Swipe(MainActivity.this);
 
-        Log.i("DEBUG", "Main (ActivityMain)");
-        startAlertAtParticularTime();
+
+        alarmTest(this);
 
         //than the user go click on the button "mButtonAdd"
         mButtonAdd.setOnClickListener(new View.OnClickListener() {
@@ -88,27 +88,27 @@ public class MainActivity extends AppCompatActivity {
                         switch (IntPage()) {
                             case 0:
                                 setInt(0);
-                                setItem("#fff9ec4f", 1, true);
+                                setItem("#fff9ec4f", 5, true);
                                 do2.start();
                                 break;
                             case 1:
                                 setInt(1);
-                                setItem("#ffb8e986", 200, true);
+                                setItem("#ffb8e986", 4, true);
                                 si.start();
                                 break;
                             case 2:
                                 setInt(2);
-                                setItem("#a5368ad9", 400, true);
+                                setItem("#a5368ad9", 3, true);
                                 sol.start();
                                 break;
                             case 3:
                                 setInt(3);
-                                setItem("#3b3b3b", 600, true);
+                                setItem("#3b3b3b", 2, true);
                                 re.start();
                                 break;
                             case 4:
                                 setInt(4);
-                                setItem("#ffde3c50", 800, true);
+                                setItem("#ffde3c50", 1, true);
                                 do1.start();
                                 break;
                         }
@@ -207,14 +207,45 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (IntPage() == 0) {
+            setDrawable(R.drawable.smiley_super_happy, R.color.banana_yellow, 0);
+        }
+        if (IntPage() == 1) {
+            setDrawable(R.drawable.smiley_happy, R.color.light_sage, 1);
+        }
+        if (IntPage() == 2) {
+            mImageView.setImageResource(R.drawable.smiley_normal);
+            mBackground.setBackgroundResource(R.color.cornflower_blue_65);
+            mImageView.setBackgroundResource(R.color.cornflower_blue_65);
+            mButtonFinal.setBackgroundResource(R.color.cornflower_blue_65);
+            mButtonAdd.setBackgroundResource(R.color.cornflower_blue_65);
+            setIntPage(2);
+        }
+        if (IntPage() == 3) {
+            setDrawable(R.drawable.smiley_disappointed, R.color.warm_grey, 3);
+        }
+        if (IntPage() == 4) {
+            setDrawable(R.drawable.smiley_sad, R.color.faded_red, 4);
+        }
+    }
+
+
     //recovers the number a page
     public int IntPage() {
-        return page;
+        int ip = mPreferences.getInt("page", page);
+        return ip;
     }
 
     //initializes the number a page
     public void setIntPage(int page) {
         this.page = page;
+        SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putInt("page", page);
+        editor.commit();
     }
 
     public void setDrawable(int i1, int i2, int i3) {
@@ -277,24 +308,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public int getSizes() {
-        int size = 0;
-        int sizes = mPreferences.getInt("SIZE", size);
-        return sizes;
+        int sizes = 0;
+        int sizess = mPreferences.getInt("SIZE", sizes);
+        return sizess;
     }
 
-    public void startAlertAtParticularTime() {
 
-        Log.i("DEBUG", "startAlertAtParticularTime (ActivityMain)");
-        alarmMgr = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        Intent intentA = new Intent(this, AddItemList.class);
-        alarmIntent = PendingIntent.getBroadcast(this, 0, intentA, 0);
+    private void alarmTest(Context context) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.add(Calendar.DATE, 1);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        alarmMgr.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, alarmIntent);
+        Intent alarmIntent = new Intent(context, AddItemList.class);
+        mPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
+        mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        mAlarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
+                cal.getTimeInMillis(), AlarmManager.INTERVAL_DAY, mPendingIntent);
     }
 
 }

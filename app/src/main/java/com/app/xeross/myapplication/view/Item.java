@@ -8,7 +8,6 @@ public class Item {
 
     private String name;
     private int in;
-    private long id;
     private String ColorFrameLayout;
     private String st;
 
@@ -17,14 +16,6 @@ public class Item {
         this.ColorFrameLayout = ColorFrameLayout;
         this.in = in;
         this.st = st;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getName() {

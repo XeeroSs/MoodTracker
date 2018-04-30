@@ -1,10 +1,10 @@
 package com.app.xeross.myapplication.model;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,21 +16,13 @@ import android.widget.Toast;
 import com.app.xeross.controller.R;
 import com.app.xeross.myapplication.view.Item;
 
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by XeroSs on 14/02/2018.
- */
+class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
- class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-    public static final String STRING_NAME = "STRING_NAME";
     public TextView mTextView;
     public ImageButton mImageButton;
     public FrameLayout mFrameLayout;
-    public SharedPreferences sharedPref;
-    Context mContext;
 
     Interface mInterface;
 
@@ -52,15 +44,11 @@ import java.util.List;
     }
 }
 
- public class CustomAdapter extends RecyclerView.Adapter<CustomViewHolder> {
+public class CustomAdapter extends RecyclerView.Adapter<CustomViewHolder> {
 
-    final String TEXT_TEST = "TEXT_TEST";
-    public SharedPreferences sharedPref;
-    public ImageButton mImageButton;
     List<Item> mItemList;
     Context mContext;
     int row_index = -1;
-    private List<Item> items;
 
     public CustomAdapter(List<Item> itemList, Context context) {
         mItemList = itemList;
@@ -82,17 +70,14 @@ import java.util.List;
 
         holder.mTextView.setText(mItemList.get(position).getName());
         holder.mFrameLayout.setBackgroundColor(Color.parseColor(mItemList.get(position).getColorFrameLayout()));
-        params.setMargins(1, 1, mItemList.get(position).getInt(), 1);
-        holder.mFrameLayout.setLayoutParams(params);
-        //String ssd = mItemList.get(position).getSt();
+        //params.setMargins(1, 1, mItemList.get(position).getInt(), 1);
 
-        /*if (ssd.toString().length() != 0) {
-            //I active "mImageButton"
-            mImageButton.setVisibility(View.VISIBLE);
-        } else {
-            //I disable "mImageButton"
-            mImageButton.setVisibility(View.GONE);
-        }*/
+        holder.mFrameLayout.setLayoutParams(params);
+
+        if (mItemList.get(position).getSt().equals("")) {
+            holder.mImageButton.setVisibility(View.GONE);
+        }
+        layoutResizer(holder, mItemList.get(position));
 
         //When the user click on "mImageButton", I call the "onClick" method
         holder.mImageButton.setOnClickListener(new View.OnClickListener() {
@@ -122,6 +107,20 @@ import java.util.List;
         }
 
 
+    }
+
+    public void layoutResizer(CustomViewHolder holder, Item ci) {
+        //Display metric can catch the width or/and height of the device
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        ((Activity) mContext).getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        //This variable take the width of the device and with the index value and a calculation
+        //the layout width size is adjusting
+        int deviceWidth, deviceHeight;
+        deviceWidth = (displaymetrics.widthPixels * 17 * (ci.getInt() + 1)) / 100;
+//        deviceHeight = (displaymetrics.heightPixels / mListMoodItems.size()-1);
+        //Here we initiate the new width to each item layout
+        holder.mFrameLayout.getLayoutParams().width = deviceWidth;
+//        holder.mRelativeLayout.getLayoutParams().height = deviceHeight;
     }
 
     @Override
